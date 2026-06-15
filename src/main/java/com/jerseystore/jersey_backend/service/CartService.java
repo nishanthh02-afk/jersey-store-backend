@@ -40,16 +40,30 @@ public class CartService {
     }
 
     private CartItemResponse convertItemToResponse(CartItem item) {
-        return new CartItemResponse(
-                item.getId(),
-                item.getProductVariant().getId(),
-                item.getProductVariant().getProduct().getName(),
-                item.getProductVariant().getKitType().name(),
-                item.getProductVariant().getSize().name(),
-                item.getProductVariant().getPrice(),
-                item.getQuantity(),
-                item.getProductVariant().getPrice() * item.getQuantity()
-        );
+        Product product = item.getProductVariant().getProduct();
+
+        String imageUrl = null;
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            imageUrl = product.getImages().stream()
+                    .filter(img -> img.getIsPrimary())
+                    .findFirst()
+                    .orElse(product.getImages().get(0))
+                    .getImageUrl();
+        }
+
+        return CartItemResponse.builder()
+                .id(item.getId())
+                .productId(product.getId())
+                .productVariantId(item.getProductVariant().getId())
+                .productName(product.getName())
+                .league(product.getLeague())
+                .kitType(item.getProductVariant().getKitType().name())
+                .size(item.getProductVariant().getSize().name())
+                .price(item.getProductVariant().getPrice())
+                .quantity(item.getQuantity())
+                .totalPrice(item.getProductVariant().getPrice() * item.getQuantity())
+                .imageUrl(imageUrl)
+                .build();
     }
 
     private CartResponse convertCartToResponse(Cart cart) {

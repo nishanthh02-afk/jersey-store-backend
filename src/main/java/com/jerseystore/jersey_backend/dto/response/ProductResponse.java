@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +20,6 @@ public class ProductResponse {
     private String team;
     private String league;
     private String brand;
+    private List<ProductVariantResponse> variants;
+    private List<ProductImageResponse> images;
 }

@@ -1,5 +1,6 @@
 package com.jerseystore.jersey_backend.service;
 
+import com.jerseystore.jersey_backend.dto.response.OrderResponse;
 import com.jerseystore.jersey_backend.dto.response.UserResponse;
 import com.jerseystore.jersey_backend.entity.Order;
 import com.jerseystore.jersey_backend.entity.User;
@@ -19,6 +20,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
@@ -28,17 +30,18 @@ public class AdminService {
     private final AddressRepository addressRepository;
     private final PaymentRepository paymentRepository;
 
+
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user -> new UserResponse(
-                        user.getId(),
-                        user.getName(),
-                        user.getEmail(),
-                        user.getPhone(),
-                        user.getRole(),
-                        user.getCreatedAt()
-                ))
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .role(user.getRole().name())
+                        .createdAt(user.getCreatedAt())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -76,8 +79,11 @@ public class AdminService {
         return "User deleted successfully";
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(order -> orderService.getOrderById(order.getId()))
+                .collect(Collectors.toList());
     }
 
     public Order updateOrderStatus(Long id, OrderStatus status) {

@@ -39,14 +39,28 @@ public class WishlistService {
     }
 
     private WishlistItemResponse convertItemToResponse(WishlistItem item) {
-        return new WishlistItemResponse(
-                item.getId(),
-                item.getProductVariant().getId(),
-                item.getProductVariant().getProduct().getName(),
-                item.getProductVariant().getKitType().name(),
-                item.getProductVariant().getSize().name(),
-                item.getProductVariant().getPrice()
-        );
+        Product product = item.getProductVariant().getProduct();
+
+        String imageUrl = null;
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            imageUrl = product.getImages().stream()
+                    .filter(img -> img.getIsPrimary())
+                    .findFirst()
+                    .orElse(product.getImages().get(0))
+                    .getImageUrl();
+        }
+
+        return WishlistItemResponse.builder()
+                .id(item.getId())
+                .productId(product.getId())
+                .productVariantId(item.getProductVariant().getId())
+                .productName(product.getName())
+                .league(product.getLeague())
+                .kitType(item.getProductVariant().getKitType().name())
+                .size(item.getProductVariant().getSize().name())
+                .price(item.getProductVariant().getPrice())
+                .imageUrl(imageUrl)
+                .build();
     }
 
     private WishlistResponse convertWishlistToResponse(Wishlist wishlist) {

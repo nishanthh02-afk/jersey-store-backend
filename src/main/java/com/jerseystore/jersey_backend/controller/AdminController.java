@@ -1,5 +1,6 @@
 package com.jerseystore.jersey_backend.controller;
 
+import com.jerseystore.jersey_backend.dto.response.OrderResponse;
 import com.jerseystore.jersey_backend.dto.response.UserResponse;
 import com.jerseystore.jersey_backend.entity.Order;
 import com.jerseystore.jersey_backend.enums.OrderStatus;
@@ -30,7 +31,7 @@ public class AdminController {
     }
 
     @GetMapping("/orders")
-    public List<Order> getAllOrders() {
+    public List<OrderResponse> getAllOrders() {
         return adminService.getAllOrders();
     }
 

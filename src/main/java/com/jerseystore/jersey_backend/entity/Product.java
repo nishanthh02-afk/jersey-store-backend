@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import java.util.List;
+import com.jerseystore.jersey_backend.entity.ProductVariant;
+import com.jerseystore.jersey_backend.entity.ProductImage;
 
 import java.time.LocalDateTime;
 
@@ -34,4 +37,10 @@ public class Product {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ProductVariant> variants;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ProductImage> images;
 }

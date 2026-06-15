@@ -1,11 +1,17 @@
 package com.jerseystore.jersey_backend.service;
 
 import com.jerseystore.jersey_backend.dto.request.ProductRequest;
+import com.jerseystore.jersey_backend.dto.response.ProductImageResponse;
 import com.jerseystore.jersey_backend.dto.response.ProductResponse;
 import com.jerseystore.jersey_backend.entity.Product;
 import com.jerseystore.jersey_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.jerseystore.jersey_backend.dto.response.ProductVariantResponse;
+import com.jerseystore.jersey_backend.enums.Size;
+import com.jerseystore.jersey_backend.enums.KitType;
+import com.jerseystore.jersey_backend.entity.ProductVariant;
+import com.jerseystore.jersey_backend.repository.ProductVariantRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,9 +20,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private final ProductVariantRepository productVariantRepository;
+
     public ProductResponse addProduct(ProductRequest request) {
 
-        Product product=Product.builder()
+        Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
@@ -26,6 +34,18 @@ public class ProductService {
                 .build();
 
         productRepository.save(product);
+
+        // Auto create variants
+        for (Size size : Size.values()) {
+            ProductVariant variant = ProductVariant.builder()
+                    .product(product)
+                    .kitType(KitType.HOME)
+                    .size(size)
+                    .price(product.getPrice())
+                    .stock(50)
+                    .build();
+            productVariantRepository.save(variant);
+        }
 
         return convertToResponse(product);
     }
@@ -114,16 +134,39 @@ public class ProductService {
 
 
     private final ProductRepository productRepository;
-    private ProductResponse convertToResponse(Product product){
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getTeam(),
-                product.getLeague(),
-                product.getBrand()
-        );
+    private ProductResponse convertToResponse(Product product) {
+
+        List<ProductVariantResponse> variants = product.getVariants() == null ? List.of() :
+                product.getVariants().stream()
+                .map(v -> ProductVariantResponse.builder()
+                          .id(v.getId())
+                          .size(v.getSize())
+                          .kitType(v.getKitType())
+                          .price(v.getPrice())
+                          .stock(v.getStock())
+                          .build())
+                .collect(Collectors.toList());
+
+        List<ProductImageResponse> images = product.getImages() == null ? List.of() :
+                product.getImages().stream()
+                .map(i -> ProductImageResponse.builder()
+                          .id(i.getId())
+                          .imageUrl(i.getImageUrl())
+                          .isPrimary(i.getIsPrimary())
+                          .build())
+                .collect(Collectors.toList());
+
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .team(product.getTeam())
+                .league(product.getLeague())
+                .brand(product.getBrand())
+                .variants(variants)
+                .images(images)
+                .build();
     }
 
 
