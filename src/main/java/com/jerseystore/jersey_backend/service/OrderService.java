@@ -82,19 +82,7 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
         order.setTotalAmount(0.0);
 
-
         orderRepository.save(order);
-
-        try {
-            emailService.sendOrderConfirmation(
-                    user.getEmail(),
-                    user.getName(),
-                    order.getId(),
-                    order.getTotalAmount()
-            );
-        } catch (Exception e) {
-            System.err.println("Email failed: " + e.getMessage());
-        }
 
         double totalAmount = 0;
 

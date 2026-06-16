@@ -104,6 +104,7 @@ public class PaymentService {
                 Order order = payment.getOrder();
                 order.setStatus(OrderStatus.CONFIRMED);
                 orderRepository.save(order);
+
                 emailService.sendOrderConfirmation(
                         order.getUser().getEmail(),
                         order.getUser().getName(),
