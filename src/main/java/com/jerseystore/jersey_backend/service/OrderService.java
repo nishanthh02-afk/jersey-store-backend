@@ -85,12 +85,16 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        emailService.sendOrderConfirmation(
-                user.getEmail(),
-                user.getName(),
-                order.getId(),
-                order.getTotalAmount()
-        );
+        try {
+            emailService.sendOrderConfirmation(
+                    user.getEmail(),
+                    user.getName(),
+                    order.getId(),
+                    order.getTotalAmount()
+            );
+        } catch (Exception e) {
+            System.err.println("Email failed: " + e.getMessage());
+        }
 
         double totalAmount = 0;
 
@@ -152,11 +156,15 @@ public class OrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
-        emailService.sendOrderCancellation(
-                order.getUser().getEmail(),
-                order.getUser().getName(),
-                order.getId()
-        );
+        try {
+            emailService.sendOrderCancellation(
+                    order.getUser().getEmail(),
+                    order.getUser().getName(),
+                    order.getId()
+            );
+        } catch (Exception e) {
+            System.err.println("Email failed: " + e.getMessage());
+        }
         return convertToResponse(order);
     }
 }
