@@ -1,59 +1,74 @@
 package com.jerseystore.jersey_backend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String apiKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
+    private void sendEmail(String to, String subject, String body) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("sender", Map.of("name", "Realwear", "email", "aee288001@smtp-brevo.com"));
+            payload.put("to", List.of(Map.of("email", to)));
+            payload.put("subject", subject);
+            payload.put("textContent", body);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            restTemplate.postForEntity(BREVO_API_URL, request, String.class);
+        } catch (Exception e) {
+            System.err.println("Email failed: " + e.getMessage());
+        }
+    }
 
     public void sendOrderConfirmation(String to, String customerName,
                                       Long orderId, Double totalAmount) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("aee288001@smtp-brevo.com");
-        message.setSubject("Order Confirmed — JerseyStore #" + orderId);
-        message.setText(
+        sendEmail(
+                to,
+                "Order Confirmed — Realwear #" + orderId,
                 "Dear " + customerName + ",\n\n" +
                         "Your order #" + orderId + " has been placed successfully.\n\n" +
                         "Total Amount: ₹" + totalAmount + "\n\n" +
                         "We will process your order shortly.\n\n" +
-                        "Thank you for shopping with JerseyStore!\n\n" +
-                        "Team JerseyStore"
+                        "Thank you for shopping with Realwear!\n\nTeam Realwear"
         );
-        mailSender.send(message);
     }
 
     public void sendOrderCancellation(String to, String customerName, Long orderId) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("aee288001@smtp-brevo.com");
-        message.setSubject("Order Cancelled — JerseyStore #" + orderId);
-        message.setText(
+        sendEmail(
+                to,
+                "Order Cancelled — Realwear #" + orderId,
                 "Dear " + customerName + ",\n\n" +
-                        "Your order #" + orderId + " has been cancelled successfully.\n\n" +
-                        "If you did not cancel this order, please contact us immediately.\n\n" +
-                        "Thank you,\nTeam JerseyStore"
+                        "Your order #" + orderId + " has been cancelled.\n\n" +
+                        "Thank you,\nTeam Realwear"
         );
-        mailSender.send(message);
     }
 
     public void sendOrderStatusUpdate(String to, String customerName,
                                       Long orderId, String status) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("aee288001@smtp-brevo.com");
-        message.setSubject("Order Status Update — JerseyStore #" + orderId);
-        message.setText(
+        sendEmail(
+                to,
+                "Order Update — Realwear #" + orderId,
                 "Dear " + customerName + ",\n\n" +
-                        "Your order #" + orderId + " status has been updated to: " + status + "\n\n" +
-                        "Thank you for shopping with JerseyStore!\n\n" +
-                        "Team JerseyStore"
+                        "Your order #" + orderId + " status: " + status + "\n\n" +
+                        "Thank you,\nTeam Realwear"
         );
-        mailSender.send(message);
     }
 }
