@@ -26,6 +26,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final EmailService emailService;
 
     @Value("${razorpay.key.id}")
     private String keyId;
@@ -103,6 +104,12 @@ public class PaymentService {
                 Order order = payment.getOrder();
                 order.setStatus(OrderStatus.CONFIRMED);
                 orderRepository.save(order);
+                emailService.sendOrderConfirmation(
+                        order.getUser().getEmail(),
+                        order.getUser().getName(),
+                        order.getId(),
+                        order.getTotalAmount()
+                );
             } else {
                 payment.setStatus(PaymentStatus.FAILED);
                 paymentRepository.save(payment);
