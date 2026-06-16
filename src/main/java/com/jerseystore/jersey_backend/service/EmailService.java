@@ -15,6 +15,7 @@ public class EmailService {
                                       Long orderId, Double totalAmount) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom("aee288001@smtp-brevo.com");
         message.setSubject("Order Confirmed — JerseyStore #" + orderId);
         message.setText(
                 "Dear " + customerName + ",\n\n" +
@@ -30,6 +31,7 @@ public class EmailService {
     public void sendOrderCancellation(String to, String customerName, Long orderId) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom("aee288001@smtp-brevo.com");
         message.setSubject("Order Cancelled — JerseyStore #" + orderId);
         message.setText(
                 "Dear " + customerName + ",\n\n" +
@@ -44,6 +46,7 @@ public class EmailService {
                                       Long orderId, String status) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom("aee288001@smtp-brevo.com");
         message.setSubject("Order Status Update — JerseyStore #" + orderId);
         message.setText(
                 "Dear " + customerName + ",\n\n" +
