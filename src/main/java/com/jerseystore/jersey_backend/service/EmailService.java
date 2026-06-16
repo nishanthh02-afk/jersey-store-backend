@@ -26,7 +26,7 @@ public class EmailService {
             headers.set("api-key", apiKey);
 
             Map<String, Object> payload = new HashMap<>();
-            payload.put("sender", Map.of("name", "Realwear", "email", "aee288001@smtp-brevo.com"));
+            payload.put("sender", Map.of("name", "Realwear", "email", "nishanthh02@gmail.com"));
             payload.put("to", List.of(Map.of("email", to)));
             payload.put("subject", subject);
             payload.put("textContent", body);
